@@ -75,7 +75,11 @@ const rollDice = () => {
 const leadersboardMsg = (playersArray) => {
   //copying out a new scoring array for leadersboard sorting
   let leadersboardArray = [...playersArray];
-  leadersboardArray = leadersboardArray.sort((a, b) => b.score - a.score);
+  if (gameMode == HIGHEST) {
+    leadersboardArray = leadersboardArray.sort((a, b) => b.score - a.score);
+  } else if (gameMode == LOWEST) {
+    leadersboardArray = leadersboardArray.sort((a, b) => a.score - b.score);
+  }
   console.log(leadersboardArray);
   let msg = "";
   for (const player of leadersboardArray) {
@@ -208,15 +212,11 @@ const knockoutMode = (playersArray, input) => {
       .indexOf(winningNum);
     let winningPlayer = faceOffArray[winningPlayerIndex].player;
     let losingPlayerIndex = winningPlayerIndex == 0 ? 1 : 0;
-    console.log(losingPlayerIndex);
     let losingPlayer = faceOffArray[losingPlayerIndex].player;
     let eliminatingPlayerIndex = playersArray
       .map((player) => player.player)
       .indexOf(losingPlayer);
-    console.log(eliminatingPlayerIndex);
-    console.log(playersArray);
     deletedArray = playersArray.splice(eliminatingPlayerIndex, 1);
-    console.log(playersArray);
     faceOffArray = [];
     console.log(faceOffArray.length);
     playerNum = 0;
