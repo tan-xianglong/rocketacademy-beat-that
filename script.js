@@ -37,6 +37,7 @@ const createPlayer = (player) => {
 
 //function to initialize the playersArray for storing players info such a dice score
 const initializePlayersArray = (numOfPlayers) => {
+  playersArray = [];
   for (i = 0; i < numOfPlayers; i += 1) {
     playersArray.push(createPlayer(i + 1));
   }
@@ -57,7 +58,11 @@ const switchGameMode = (input) => {
       break;
   }
   gameStatus = pendingToRoll;
-  return `Hello user, the game mode is now '${gameMode}'. Please press Submit button to roll the dice.`;
+  if (gameMode == HIGHEST || gameMode == LOWEST) {
+    return `Hello Player ${playerNum}, the game mode is now '${gameMode}'. Please press Submit button to roll the dice.`;
+  } else {
+    return `The game mode is now ${gameMode}. Please press Submit button to draw players to face off.`;
+  }
 };
 
 //creating a function that rolls a dice number
@@ -82,7 +87,10 @@ const leadersboardMsg = (playersArray) => {
 };
 
 //creating function to run highest scoring game mode
-const highestMode = (playersArray) => {
+const highestMode = (playersArray, input) => {
+  if (input != "") {
+    return `Hi Player ${playerNum}. Please kindly click the Submit button to roll the dice.`;
+  }
   for (i = 0; i < numOfDice; i += 1) {
     playersArray[playerNum - 1].diceNumRolled[i] = rollDice();
   }
@@ -117,7 +125,10 @@ const highestMode = (playersArray) => {
 };
 
 //creating function to run lowest scoring game mode
-const lowestMode = (playersArray) => {
+const lowestMode = (playersArray, input) => {
+  if (input != "") {
+    return `Hi Player ${playerNum}. Please kindly click the Submit button to roll the dice.`;
+  }
   for (i = 0; i < numOfDice; i += 1) {
     playersArray[playerNum - 1].diceNumRolled[i] = rollDice();
   }
@@ -155,8 +166,11 @@ const lowestMode = (playersArray) => {
 //1. need a separate array of selected players for face off
 //2. the loser in the face off will be removed from the original array
 //3. repeat 1 & 2 until there is only 1 player in the original array and declare winner.
-const knockoutMode = () => {
-  if (faceOffArray == []){
+const knockoutMode = (playersArray, input) => {
+  if (faceOffArray.length == 0) {
+    if (input != "") {
+      return `Hi user. Please kindly click the Submit button to draw the players for face off.`;
+    }
     let playerA_Index = Math.floor(Math.random() * playersArray.length);
     let playerB_Index = Math.floor(Math.random() * playersArray.length);
     while (playerA_Index == playerB_Index) {
@@ -166,11 +180,56 @@ const knockoutMode = () => {
     let playerB = playersArray[playerB_Index];
     faceOffArray.push(playerA);
     faceOffArray.push(playerB);
-
+    console.log(faceOffArray);
+    return `Player ${faceOffArray[0].player} and Player ${faceOffArray[1].player} will face off each other for the knockout round. Player ${faceOffArray[0].player} please click Submit to roll the dice.`;
   }
-  console.log(faceOffArray);
-  highestMode(faceOffArray);
+  if (input != "") {
+    return `Hi Player ${
+      faceOffArray[playerNum - 1].player
+    }. Please kindly click the Submit button to roll the dice.`;
+  }
+  for (i = 0; i < numOfDice; i += 1) {
+    faceOffArray[playerNum - 1].diceNumRolled[i] = rollDice();
+  }
+  faceOffArray[playerNum - 1].diceNumRolled.sort((a, b) => b - a);
+  faceOffArray[playerNum - 1].numResult = Number(
+    faceOffArray[playerNum - 1].diceNumRolled.join("")
+  );
+  let msg = `Hi Player ${faceOffArray[playerNum - 1].player}, you rolled ${
+    faceOffArray[playerNum - 1].diceNumRolled
+  } for your dice.`;
 
+  if (playerNum == faceOffArray.length) {
+    let winningNum = Math.max(
+      ...faceOffArray.map((player) => player.numResult)
+    );
+    let winningPlayerIndex = faceOffArray
+      .map((player) => player.numResult)
+      .indexOf(winningNum);
+    let winningPlayer = faceOffArray[winningPlayerIndex].player;
+    let losingPlayerIndex = winningPlayerIndex == 0 ? 1 : 0;
+    console.log(losingPlayerIndex);
+    let losingPlayer = faceOffArray[losingPlayerIndex].player;
+    let eliminatingPlayerIndex = playersArray
+      .map((player) => player.player)
+      .indexOf(losingPlayer);
+    console.log(eliminatingPlayerIndex);
+    console.log(playersArray);
+    deletedArray = playersArray.splice(eliminatingPlayerIndex, 1);
+    console.log(playersArray);
+    faceOffArray = [];
+    console.log(faceOffArray.length);
+    playerNum = 0;
+    if (playersArray.length == 1) {
+      msg += `<br><br>The winner is Player ${winningPlayer}! Congratulation you have won the knockout competition! Click Submit button to restart`;
+      initializePlayersArray(totalNumOfPlayers);
+    } else {
+      msg += `<br><br>The winner is Player ${winningPlayer}! Player ${winningPlayer} will proceed to the next round. Click Submit button to draw new players.`;
+    }
+  }
+
+  playerNum += 1;
+  return msg;
 };
 
 var main = function (input) {
@@ -201,18 +260,15 @@ var main = function (input) {
       return switchGameMode(input);
     }
   }
-
+  console.log(faceOffArray);
   if (gameStatus == pendingToRoll) {
-    if (input != "") {
-      return `Hi Player ${playerNum}. Please kindly click the Submit button to roll the dice.`;
-    }
     switch (gameMode) {
       case HIGHEST:
-        return highestMode(playersArray);
+        return highestMode(playersArray, input);
       case LOWEST:
-        return lowestMode(playersArray);
+        return lowestMode(playersArray, input);
       case KNOCKOUT:
-        return knockoutMode();
+        return knockoutMode(playersArray, input);
     }
   }
 };
