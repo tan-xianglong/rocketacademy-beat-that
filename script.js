@@ -1,12 +1,20 @@
 //pseudo codes
-// 1. validates input by ensuring player click submit without input to roll dice
-// 2. after submitting, 2 dices are rolled
-// 3. ask player to chose dice A or B and validate input
-// 4. concatenate the numbers and convert back to number
-// 5. once combined, add it into the array of answers
-// 6. proceed to repeat 1 - 5
-// 7. check which number is array is the highest and provide the index
-// 8. index + 1 will  be the player number who wins
+// 1. Ask for number of players playing the game
+//    a. use a function to create N number of players object and store in an array. Each player object will be capable of storing various info such as player number, dice roll etc
+// 2. Ask for number of dice to be played and store the number of dice to calculate the number of times we can roll the dice.
+// 3. Ask for game mode
+// Note: To always validates input by players
+// 4. Create function for rolling dice numebr 1 - 6
+// 5. Create function to choose which game mode to execute
+// 6. Create highest scoring game mode
+//    a. after validate input, roll the dice and store each roll result into the player object e.g. 1,6,1,5
+//    b. sort the roll results and merge them and store as the number rolled and score earned in the player object e.g. 1,6,1,5 --> 1,1,5,6 --> 1156
+//    c. repeat a & b until all players have rolled their dice
+//    d. extract all the players rolled number into an array, identify the highest number rolled and the player
+//    e. save all the numbers rolled to the respective player score
+//    f. copy all the player objects into another array and sort the player objects by the highest score and use loop to print the arrays out as the leadersboard
+// 7. Create lowest scoring game mode
+//    a. similar to step 6 but sort the numbers rolled and the scoring in ascending order
 
 //defining global variables & setting up initial game status & arrays
 const gameModeArray = ["highest", "lowest", "knockout"];
